@@ -1,24 +1,36 @@
+import { GridGame, cn, letterStatus } from "../lib/utils";
 
 export type WordGridProps = {
-  gridGame: string[][];
+  gridGame: GridGame;
   tryNumber: number;
-  letter: string;
-}
+};
 
-const WordGrid = ({ gridGame, tryNumber, letter }: WordGridProps) => {
+const WordGrid = ({ gridGame, tryNumber }: WordGridProps) => {
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       {gridGame.map((row, rowIndex) => (
-        <div key={rowIndex} className="flex">
+        <div key={`row-${rowIndex}`} className="flex gap-2">
           {row.map((letter, letterIndex) => (
-            <div key={letterIndex} className="flex items-center justify-center w-8 h-8 border border-gray-300">
-              {letter}
+            <div
+              key={`cell-${rowIndex}${letterIndex}`}
+              className={cn(
+                "flex items-center justify-center border size-16 border-slate-600 text-slate-100 font-bold text-2xl rounded-sm",
+                letter.status === letterStatus.notFound
+                  ? "bg-gray-400"
+                  : letter.status === letterStatus.goodPlace
+                  ? "bg-green-600"
+                  : letter.status === letterStatus.wrongPlace
+                  ? "bg-orange-600"
+                  : "bg-transparent"
+              )}
+            >
+              {letter.name}
             </div>
           ))}
         </div>
       ))}
     </div>
-  )
+  );
 };
 
-export default WordGrid
+export default WordGrid;
