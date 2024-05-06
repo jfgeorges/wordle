@@ -55,8 +55,6 @@ export const initialGridGame = Array.from({ length: gridSizes.length }, () =>
 export type GridGame = typeof initialGridGame;
 
 export function randomItem<T>(items: Array<T>): T {
-  // Use Math.random() to generate a random number between 0 and 1,
-  // multiply it by the length of the array, and use Math.floor() to round down to the nearest integer
   return items[Math.floor(Math.random() * items.length)];
 }
 

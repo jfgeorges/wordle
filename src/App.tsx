@@ -9,29 +9,55 @@ function App() {
   const wordToFindRef = useRef(pickAWord().toUpperCase());
 
   const remainingTries = 6 - tryNumber;
+  const WORD_LENGTH = 5;
 
   const checkLetterStatus = (word: string) => {
     const wordToFind = wordToFindRef.current;
     const newGrid = gridGame.map((row, rowIndex) => {
       if (rowIndex === tryNumber) {
-        return row.map((letter, columnIndex) => {
-          if (columnIndex < word.length) {
-            if (wordToFind.includes(word[columnIndex])) {
-              if (wordToFind[columnIndex] === word[columnIndex]) {
-                return {
-                  name: word[columnIndex],
-                  status: letterStatus.goodPlace,
-                };
-              } else {
-                return {
-                  name: word[columnIndex],
-                  status: letterStatus.wrongPlace,
-                };
-              }
-            }
+        const wordWithColors = Array(WORD_LENGTH).fill(null);
+        const indexOfIncorrectLettersInGuess = [];
+        // Tracks the letters (and counts of those letters)
+        // in `wordToFind` that were not used up by `word`
+        const targetLetters: { [key: string]: number } = {};
+
+        for (let i = 0; i < WORD_LENGTH; ++i) {
+          const targetLetter = wordToFind[i];
+
+          if (targetLetter in targetLetters) {
+            targetLetters[targetLetter]++;
+          } else {
+            targetLetters[targetLetter] = 1;
           }
-          return letter;
-        });
+
+          if (word[i] === targetLetter) {
+            wordWithColors[i] = {
+              name: word[i],
+              status: letterStatus.goodPlace
+            }
+            targetLetters[targetLetter]--;
+          } else {
+            indexOfIncorrectLettersInGuess.push(i);
+          }
+        }
+
+        for (const i of indexOfIncorrectLettersInGuess) {
+          const guessLetter = word[i];
+
+          if (guessLetter in targetLetters && targetLetters[guessLetter] > 0) {
+            wordWithColors[i] = {
+              name: word[i],
+              status: letterStatus.wrongPlace
+            };
+            targetLetters[guessLetter]--;
+          } else {
+            wordWithColors[i] = {
+              name: word[i],
+              status: letterStatus.notFound
+            };
+          }
+        }
+        return wordWithColors;
       }
       return row;
     });
@@ -43,14 +69,14 @@ function App() {
       setGridGame((grid) => {
         const newGrid = grid.map((row, rowIndex) => {
           if (rowIndex === tryNumber) {
-            return row.map((letter, columnIndex) => {
-              if (columnIndex < word.length) {
+            return row.map((_, letterIndex) => {
+              if (letterIndex < word.length) {
                 return {
-                  name: word[columnIndex],
+                  name: word[letterIndex],
                   status: letterStatus.none,
                 };
               }
-              return letter;
+              return { name: "", status: letterStatus.none };
             });
           }
           return row;
